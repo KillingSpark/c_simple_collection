@@ -42,20 +42,32 @@ void init_prio_queue_sized_malloc(queue *q, int initial_size)
         q->head = (node *)malloc(sizeof(node) * initial_size);
     }
 }
-#endif
-
-#ifdef USE_MALLOC
-void queue_realloc(queue *q)
-{
-    q->cap *= 2;
-    q->head = (node *)realloc(q->head, sizeof(node) * q->cap);
-}
-#endif
 
 void init_prio_queue(queue *q)
 {
     init_prio_queue_sized_malloc(q, 0);
 }
+
+void queue_realloc_increase(queue *q, int factor)
+{
+    q->cap *= factor;
+    void *new_alloc = realloc(q->head, sizeof(node) * q->cap);
+    if (new_alloc)
+    {
+        q->head = (node *)new_alloc;
+    }
+}
+
+void queue_realloc_decrease(queue *q, int factor)
+{
+    q->cap /= factor;
+    void *new_alloc = realloc(q->head, sizeof(node) * q->cap);
+    if (new_alloc)
+    {
+        q->head = (node *)new_alloc;
+    }
+}
+#endif
 
 int left_child(int pos)
 {
@@ -168,6 +180,30 @@ int pop(queue *q, void **target)
     sift_down(q, 0);
 
     return 0;
+}
+
+
+void destroy_queue(queue *q)
+{
+    free(q->head);
+}
+
+void heap_sort(int *to_sort, int len)
+{
+    queue q;
+    init_prio_queue_sized_malloc(&q, len);
+    for (int i = 0; i < len; i++)
+    {
+        push(&q, (void *)&to_sort[i], to_sort[i]);
+    }
+    int *ret;
+    void *ret_h = (void *)ret;
+    for (int i = 0; i < len; i++)
+    {
+        pop(&q, &ret_h);
+        to_sort[i] = *ret;
+    }
+    destroy_queue(&q);
 }
 
 int check_queue_health(queue *q, int pos)

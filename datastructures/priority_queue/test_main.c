@@ -1,7 +1,7 @@
 #include "prio.h"
 #include <stdio.h>
 
-#define ITEMS 10000000
+#define ITEMS 1000
 
 void print_queue(queue *q)
 {
@@ -19,7 +19,20 @@ void print_queue(queue *q)
     printf("\n");
 }
 
-void main()
+void test_sort()
+{
+    int data[10] = {2,7,4,3,3,56,7,345,45,456};
+    heap_sort(data, 10);
+    for(int i = 1; i < 10; i++){
+        if (data[i-1] > data[i]) {
+            printf("NOT SORTED!");
+            return;
+        } 
+    }
+    printf("SORT: SUCCESS!\n");
+}
+
+void test_queue()
 {
     queue testq;
     init_prio_queue_sized_malloc(&testq, ITEMS/2);
@@ -40,7 +53,7 @@ void main()
         }
     }
 
-    queue_realloc(&testq);
+    queue_realloc_increase(&testq, 2);
     for (int i = 0; i < ITEMS/2; i++)
     {
         idx ^= (i * 200) % 43 << (i % 64);
@@ -91,5 +104,11 @@ void main()
         return;
     }
 
-    printf("SUCCESS!\n");
+    printf("QUEUE: SUCCESS!\n");
+}
+
+
+void main() {
+    test_queue();
+    test_sort();
 }
