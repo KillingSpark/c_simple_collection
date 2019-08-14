@@ -1,4 +1,3 @@
-#include <malloc.h>
 
 typedef struct ringbuffer {
     void **data;
@@ -14,10 +13,15 @@ void init_ringbuffer_workspace(ringbuffer *rb, int size, void **workspace) {
     rb->len = 0;
 }
 
+#define USE_MALLOC 1
+
+#ifdef USE_MALLOC 
+#include <malloc.h>
 void init_ringbuffer_malloc(ringbuffer *rb, int size) {
     void **workspace = (void**)malloc(sizeof(void*) * size);
     init_ringbuffer_workspace(rb, size, workspace);
 }
+#endif
 
 int ERR_OOM = 1;
 
