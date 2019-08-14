@@ -198,10 +198,6 @@ int check_queue_health(queue *q, int pos)
         }
         violations += check_queue_health(q, right_child(pos));
     }
-    if (violations > 0)
-    {
-        printf("Violations found in %d: %d\n", pos, violations);
-    }
 
     return violations;
 }
