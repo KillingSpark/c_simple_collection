@@ -22,10 +22,10 @@ void print_queue(queue *q)
 void main()
 {
     queue testq;
-    init_prio_queue_sized(&testq, ITEMS);
+    init_prio_queue_sized_malloc(&testq, ITEMS/2);
 
     int idx = 0;
-    for (int i = 0; i < ITEMS; i++)
+    for (int i = 0; i < ITEMS/2; i++)
     {
         idx ^= (i * 200) % 43 << (i % 64);
         int x = idx % 1000;
@@ -33,8 +33,29 @@ void main()
         {
             x = -x;
         }
-        push(&testq, (void *)x, x);
+        int err = push(&testq, (void *)x, x);
+        if (err) {
+            printf("OOM error!");
+            return;
+        }
     }
+
+    queue_realloc(&testq);
+    for (int i = 0; i < ITEMS/2; i++)
+    {
+        idx ^= (i * 200) % 43 << (i % 64);
+        int x = idx % 1000;
+        if (x < 0)
+        {
+            x = -x;
+        }
+        int err = push(&testq, (void *)x, x);
+        if (err) {
+            printf("OOM error!");
+            return;
+        }
+    }
+
     printf("\n");
 
     int health = check_queue_health(&testq, 0);
@@ -50,7 +71,11 @@ void main()
 
     for (int i = 0; i < ITEMS; i++)
     {
-        pop(&testq, &ret_data);
+        int err = pop(&testq, &ret_data);
+        if (err) {
+            printf("Empty queue error!");
+            return;
+        }
 
         if ((int)prev_ret_data > (int)ret_data)
         {
@@ -63,5 +88,8 @@ void main()
     if (testq.len != 0)
     {
         printf("elements in queue: %d, should be: 0\n", testq.len);
+        return;
     }
+
+    printf("SUCCESS!\n");
 }

@@ -1,4 +1,8 @@
+#define USE_MALLOC 1
+
+#ifdef USE_MALLOC
 #include <malloc.h>
+#endif
 
 struct node
 {
@@ -12,22 +16,45 @@ struct queue
     node *head;
     int len;
     int cap;
+    int resizeable;
 };
 typedef struct queue queue;
 
 const int ERR_OOM = 1;
 const int ERR_EMPTY = 2;
 
-void init_prio_queue_sized(queue *q, int initial_size)
+void init_prio_queue_sized_workspace(queue *q, int size, void *workspace)
+{
+    q->len = 0;
+    q->cap = size;
+    q->resizeable = 0;
+    q->head = (node *)workspace;
+}
+
+#ifdef USE_MALLOC
+void init_prio_queue_sized_malloc(queue *q, int initial_size)
 {
     q->len = 0;
     q->cap = initial_size;
-    q->head = (node *)malloc(sizeof(node) * initial_size);
+    q->resizeable = 1;
+    if (initial_size > 0)
+    {
+        q->head = (node *)malloc(sizeof(node) * initial_size);
+    }
 }
+#endif
+
+#ifdef USE_MALLOC
+void queue_realloc(queue *q)
+{
+    q->cap *= 2;
+    q->head = (node *)realloc(q->head, sizeof(node) * q->cap);
+}
+#endif
 
 void init_prio_queue(queue *q)
 {
-    init_prio_queue_sized(q, 0);
+    init_prio_queue_sized_malloc(q, 0);
 }
 
 int left_child(int pos)
