@@ -83,3 +83,7 @@ void *vector_get(vector *v, int idx) {
     }
     return v->data[idx];    
 }
+
+void vector_destroy(vector *v) {
+    free(v->data);
+}
